@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+npm install -g mineflayer
+echo oxaq > /etc/hostname
+: > /etc/motd
+printf 'OXAQ Server 1.0\n' > /etc/issue

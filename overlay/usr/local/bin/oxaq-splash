@@ -1,0 +1,42 @@
+#!/bin/bash
+# OXAQ Server 1.0 boot splash: dots -> big OXAQOS + music -> fade out -> console header
+cols=$(tput cols 2>/dev/null || echo 80); rows=$(tput lines 2>/dev/null || echo 25)
+R=(0 170 0 170 0 170 0 170 85 255 85 255 85 255 85 255)
+G=(0 0 170 85 0 0 170 170 85 85 255 255 85 85 255 255)
+B=(0 0 0 0 170 170 170 170 85 85 85 85 255 255 255 255)
+pal() { # scale palette: $1 = 0..20 (20 = normal)
+  command -v setvtrgb >/dev/null || return 0
+  local f=/tmp/oxaq-pal a v out n; : > $f
+  for n in R G B; do declare -n a=$n; out=""
+    for v in "${a[@]}"; do out+="$((v*$1/20)),"; done; echo "${out%,}" >> $f; done
+  sudo -n setvtrgb $f 2>/dev/null || setvtrgb $f 2>/dev/null
+}
+header() {
+  printf '\e[0m\e[2J\e[H\e[44;97;1m%-*s\e[0m' "$cols" "  OXAQ Server 1.0"
+  printf '\e[2;%dr\e[2;1H\e[?25h' "$rows"
+}
+if [ "$(tty)" = /dev/tty1 ]; then
+  printf '\e[?25l\e[0m\e[2J'
+  # 1) dots
+  msg="Starting OXAQ Server..."
+  printf '\e[%d;%dH\e[37m%s' $((rows/2-1)) $(((cols-${#msg})/2)) "$msg"
+  c0=$(((cols-40)/2))
+  for i in $(seq 0 19); do
+    printf '\e[%d;%dH\e[97m.' $((rows/2+1)) $((c0+i*2+1)); sleep 0.12
+  done
+  sleep 0.4
+  # 2) logo + 3) music
+  printf '\e[2J'
+  mapfile -t L < /usr/share/oxaq/logo.txt
+  top=$(((rows-12)/2)); pad=$(((cols-72)/2)); [ $pad -lt 0 ] && pad=0
+  for i in "${!L[@]}"; do printf '\e[%d;%dH\e[96m%s' $((top+i)) $((pad+1)) "${L[$i]}"; done
+  sub="S E R V E R   1 . 0"; printf '\e[%d;%dH\e[90m%s' $((top+11)) $(((cols-${#sub})/2)) "$sub"
+  (mpg123 -q /usr/share/oxaq/boot.mp3 >/dev/null 2>&1 &)
+  sleep 2.4
+  # 4) fade out
+  for s in $(seq 20 -1 0); do pal $s; sleep 0.05; done
+  printf '\e[0m\e[2J'; pal 20
+fi
+header
+printf 'OXAQ Server 1.0 - developer edition\n'
+printf "Type 'devkit' for tool status, 'newbot NAME' for a Minecraft bot, 'oxaq-install-ai' for local AI.\n\n"

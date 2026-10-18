@@ -1,0 +1,9 @@
+#!/bin/bash
+ok(){ printf '  [ok]  %-11s %s\n' "$1" "$2"; }; no(){ printf '  [--]  %-11s %s\n' "$1" "$2"; }
+echo "OXAQ Server 1.0 developer toolchain"
+command -v python3 >/dev/null && ok python "$(python3 --version)" || no python missing
+command -v node >/dev/null && ok node.js "$(node --version)" || no node.js missing
+[ -d /usr/local/lib/node_modules/mineflayer ] && ok mineflayer "$(node -p "require('/usr/local/lib/node_modules/mineflayer/package.json').version")" || no mineflayer "missing (npm i -g mineflayer)"
+command -v git >/dev/null && ok git "$(git --version)"
+ping -c1 -W2 1.1.1.1 >/dev/null 2>&1 && ok network "online" || no network "offline (try: nmtui)"
+command -v ollama >/dev/null && ok AI "ollama installed" || no AI "run: oxaq-install-ai"

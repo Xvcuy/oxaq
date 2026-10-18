@@ -1,0 +1,6 @@
+#!/bin/bash
+# Installs Ollama (third-party installer) for local AI models. Needs internet and plenty of RAM.
+echo "This downloads and runs the official Ollama installer from ollama.com."
+read -p "Continue? [y/N] " a; [ "$a" = y ] || exit 0
+curl -fsSL https://ollama.com/install.sh | sh
+echo "Then try: ollama run llama3.2:1b"

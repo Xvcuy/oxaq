@@ -1,0 +1,12 @@
+#!/bin/bash
+# newbot NAME [host] [port]  -> creates ~/bots/NAME.js (mineflayer)
+n=${1:?usage: newbot NAME [host] [port]}; h=${2:-localhost}; p=${3:-25565}
+mkdir -p ~/bots; f=~/bots/$n.js
+cat > "$f" <<EOT
+const mineflayer = require('mineflayer')
+const bot = mineflayer.createBot({ host: '$h', port: $p, username: '$n' })
+bot.once('spawn', () => bot.chat('OXAQ bot online'))
+bot.on('chat', (user, msg) => { if (user !== bot.username && msg === 'hi') bot.chat('Hello ' + user) })
+bot.on('error', console.log); bot.on('kicked', console.log)
+EOT
+echo "Created $f  -> run: node $f"
