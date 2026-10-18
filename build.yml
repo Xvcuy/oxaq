@@ -1,0 +1,32 @@
+Name: Build OXAQ Server ISO
+
+on:
+
+workflow_dispatch:
+
+push:
+
+branches: [main, master]
+
+jobs:
+
+build:
+
+runs-on: ubuntu-latest
+
+timeout-minutes: 90
+
+steps:
+
+-uses: actions/checkout@v4
+-name: Build ISO
+run: sudo ./build.sh
+
+-uses: actions/upload-artifact@v4
+with:
+
+name: OXAQ-Server-1.0-ISO
+
+path: OXAQ-Server-1.0.iso
+
+compression-level: 0 
